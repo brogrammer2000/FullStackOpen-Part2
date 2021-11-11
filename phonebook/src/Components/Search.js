@@ -1,7 +1,7 @@
 import React from "react";
 import People from "./AllPeople";
 
-const Filtering = ({ search, persons }) => {
+const Filtering = ({ search, persons, message }) => {
   let newPeople = [];
   const regex = new RegExp(search, "gi");
 
@@ -11,7 +11,7 @@ const Filtering = ({ search, persons }) => {
     newPeople = persons.filter((person) => person.name.match(regex) !== null);
   }
 
-  return <People newPeople={newPeople} />;
+  return <People newPeople={newPeople} message={message} />;
 };
 
 export default Filtering;

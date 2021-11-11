@@ -1,21 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Filtering from "./Components/Search";
 import Form from "./Components/Form";
+import personService from "./services/personservice";
+import Notification from "./Components/Notification";
+// import axios from "axios";
 
 const App = () => {
-  let [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  let [persons, setPersons] = useState([]);
   let [newName, setNewName] = useState("");
   let [newNumber, setNewNumber] = useState("");
   let [search, setSearch] = useState("");
+  let [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    personService.getAll().then((x) => {
+      setPersons(x.data);
+    });
+  }, []);
 
   const addPerson = (event) => {
     event.preventDefault();
-    console.log("button clicked", event.target);
+    // console.log("button clicked", event.target);
     function userExists(name) {
       return persons.some(function (el) {
         return el.name === name;
@@ -23,11 +28,13 @@ const App = () => {
     }
 
     if (userExists(newName) === false) {
-      const newPerson = { name: newName, number: newNumber };
-      setPersons([...persons, newPerson]);
+      let newPerson = { name: newName, number: newNumber };
+      personService.create(newPerson).then((x) => setPersons(persons.concat(x)));
       newName = "";
       newNumber = "";
-      // console.log(persons);
+      console.log(newName);
+      setMessage(`${newName} has been successfully created`);
+      setTimeout(setMessage(null), 5000);
     } else if (userExists(newName) === true) {
       alert(newName + " is already added to phonebook");
     }
@@ -35,13 +42,13 @@ const App = () => {
 
   const onChangeHandler = (event) => {
     let naam = event.target.value;
-    console.log(naam);
+    // console.log(naam);
     setNewName(naam);
   };
 
   const onNumberChangeHandler = (event) => {
     let numb = event.target.value;
-    console.log(`numb`, numb);
+    // console.log(`numb`, numb);
     setNewNumber(numb);
   };
 
@@ -55,6 +62,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={message} />
       <div>
         filter shown with: <input value={search} onChange={searchHandler} />
       </div>
@@ -66,10 +74,17 @@ const App = () => {
         onChangeHandler={onChangeHandler}
         onNumberChangeHandler={onNumberChangeHandler}
       />
+      <button
+        onClick={() => {
+          window.location.reload();
+        }}
+      >
+        Refresh
+      </button>
       <h2>Numbers</h2>
       <div>
         <ol>
-          <Filtering search={search} persons={persons} />
+          <Filtering search={search} persons={persons} message={setMessage} />
         </ol>
       </div>
     </div>

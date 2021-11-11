@@ -16,4 +16,4 @@ const Form = ({ addPerson, newName, newNumber, onChangeHandler, onNumberChangeHa
   );
 };
 
-export default Form
+export default Form;
